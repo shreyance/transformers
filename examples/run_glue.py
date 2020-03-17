@@ -47,7 +47,9 @@ from transformers import (WEIGHTS_NAME, BertConfig,
                                   XLNetTokenizer,
                                   DistilBertConfig,
                                   DistilBertForSequenceClassification,
-                                  DistilBertTokenizer)
+                                  DistilBertTokenizer,AlbertConfig,
+                                  AlbertForSequenceClassification,
+                                  AlbertTokenizer)
 
 from transformers import AdamW, get_linear_schedule_with_warmup
 
@@ -59,14 +61,15 @@ from transformers import glue_convert_examples_to_features as convert_examples_t
 logger = logging.getLogger(__name__)
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, XLNetConfig, XLMConfig, 
-                                                                                RobertaConfig, DistilBertConfig)), ())
+                                                                                RobertaConfig, , AlbertConfig)), ())
 
 MODEL_CLASSES = {
     'bert': (BertConfig, BertForSequenceClassification, BertTokenizer),
     'xlnet': (XLNetConfig, XLNetForSequenceClassification, XLNetTokenizer),
     'xlm': (XLMConfig, XLMForSequenceClassification, XLMTokenizer),
     'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer),
-    'distilbert': (DistilBertConfig, DistilBertForSequenceClassification, DistilBertTokenizer)
+    'distilbert': (DistilBertConfig, DistilBertForSequenceClassification, DistilBertTokenizer),
+    'albert': (AlbertConfig, AlbertForSequenceClassification, AlbertTokenizer)
 }
 
 
@@ -142,7 +145,7 @@ def train(args, train_dataset, model, tokenizer):
                       'attention_mask': batch[1],
                       'labels':         batch[3]}
             if args.model_type != 'distilbert':
-                inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet' ,'albert'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
 
@@ -245,7 +248,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                           'attention_mask': batch[1],
                           'labels':         batch[3]}
                 if args.model_type != 'distilbert':
-                    inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                    inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet' ,'albert'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
                 outputs = model(**inputs)
                 tmp_eval_loss, logits = outputs[:2]
 
